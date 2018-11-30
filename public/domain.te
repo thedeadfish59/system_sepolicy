@@ -313,17 +313,17 @@ neverallow {
 } self:global_capability_class_set mknod;
 
 # Limit raw I/O to these whitelisted domains. Do not apply to debug builds.
-neverallow {
-  domain
-  userdebug_or_eng(`-domain')
-  -kernel
-  -init
-  -recovery
-  -ueventd
-  -healthd
-  -uncrypt
-  -tee
-} self:global_capability_class_set sys_rawio;
+#neverallow {
+  #domain
+  #userdebug_or_eng(`-domain')
+  #-kernel
+  #-init
+  #-recovery
+  #-ueventd
+  #-healthd
+  #-uncrypt
+  #-tee
+#} self:global_capability_class_set sys_rawio;
 
 # No process can map low memory (< CONFIG_LSM_MMAP_MIN_ADDR).
 neverallow * self:memprotect mmap_zero;
@@ -481,23 +481,23 @@ neverallow { domain -init } properties_serial:file { no_w_file_perms no_x_file_p
 # These partitions are intended to be read-only and must never be
 # modified. Doing so would violate important Android security guarantees
 # and invalidate dm-verity signatures.
-neverallow {
-    domain
-    with_asan(`-asan_extract')
-} {
-    system_file
-    vendor_file_type
-    exec_type
-}:dir_file_class_set { create write setattr relabelfrom append unlink link rename };
+#neverallow {
+ #   domain
+  #  with_asan(`-asan_extract')
+#} {
+#    system_file
+#    vendor_file_type
+#    exec_type
+#}:dir_file_class_set { create write setattr relabelfrom append unlink link #rename };
 
-neverallow { domain -kernel with_asan(`-asan_extract') } { system_file vendor_file_type exec_type }:dir_file_class_set relabelto;
+#neverallow { domain -kernel with_asan(`-asan_extract') } { system_file #vendor_file_type exec_type }:dir_file_class_set relabelto;
 
 # Don't allow mounting on top of /system files or directories
 neverallow * exec_type:dir_file_class_set mounton;
-neverallow { domain -init } { system_file vendor_file_type }:dir_file_class_set mounton;
+#neverallow { domain -init } { system_file vendor_file_type }:dir_file_class_set # mounton;
 
 # Nothing should be writing to files in the rootfs.
-neverallow * rootfs:file { create write setattr relabelto append unlink link rename };
+#neverallow * rootfs:file { create write setattr relabelto append unlink link #rename };
 
 # Restrict context mounts to specific types marked with
 # the contextmount_type attribute.
@@ -1164,15 +1164,15 @@ neverallow ~domain domain:process { transition dyntransition };
 # Example type transition:
 #  mydomain.te:file_type_auto_trans(mydomain, system_data_file, new_file_type)
 #
-neverallow {
-  domain
-  -system_server
-  -system_app
-  -init
-  -installd # for relabelfrom and unlink, check for this in explicit neverallow
-  -vold_prepare_subdirs # For unlink
-  with_asan(`-asan_extract')
-} system_data_file:file no_w_file_perms;
+#neverallow {
+ # domain
+  #-system_server
+  #-system_app
+  #-init
+  #-installd # for relabelfrom and unlink, check for this in explicit neverallow
+  #-vold_prepare_subdirs # For unlink
+  #with_asan(`-asan_extract')
+# } system_data_file:file no_w_file_perms;
 # do not grant anything greater than r_file_perms and relabelfrom unlink
 # to installd
 neverallow installd system_data_file:file ~{ r_file_perms relabelfrom unlink };
@@ -1356,28 +1356,28 @@ full_treble_only(`
 # Minimize dac_override and dac_read_search.
 # Instead of granting them it is usually better to add the domain to
 # a Unix group or change the permissions of a file.
-neverallow {
-  domain
-  -dnsmasq
-  -dumpstate
-  -init
-  -installd
-  -install_recovery
-  -lmkd
-  -netd
-  -perfprofd
-  -postinstall_dexopt
-  -recovery
-  -sdcardd
-  -tee
-  -ueventd
-  -uncrypt
-  -vendor_init
-  -vold
-  -vold_prepare_subdirs
-  -zygote
-} self:capability dac_override;
-neverallow { domain -traced_probes } self:capability dac_read_search;
+# neverallow {
+#  domain
+  # -dnsmasq
+  #-dumpstate
+  #init
+  #-installd
+  #-install_recovery
+  #-lmkd
+  #netd
+  #-perfprofd
+  #-postinstall_dexopt
+  #-recovery
+  #-sdcardd
+  #-tee
+  #-ueventd
+  #-uncrypt
+  #-vendor_init
+  #-vold
+  #-vold_prepare_subdirs
+  #-zygote
+#} self:capability dac_override;
+# neverallow { domain -traced_probes } self:capability dac_read_search;
 
 # If an already existing file is opened with O_CREAT, the kernel might generate
 # a false report of a create denial. Silence these denials and make sure that
@@ -1391,7 +1391,7 @@ neverallow domain {
 }:dir { add_name create link remove_name rename reparent rmdir write };
 
 # cgroupfs directories can be created, but not files within them.
-neverallow domain cgroup:file create;
+# neverallow domain cgroup:file create;
 
 dontaudit domain proc_type:dir write;
 dontaudit domain sysfs_type:dir write;
